@@ -1,14 +1,23 @@
-resource "aws_instance" "terraform_name" {
-  count = 10
+resource "aws_instance" "roboshop" {
+  count = 4
   ami                    = var.ami_id
   instance_type          = var.instance_type
-  vpc_security_group_ids = [aws_security_group.allow_terraform.id]
 
-  tags = var.ec2_tags
+  vpc_security_group_ids = [
+        aws_security_group.roboshop[count.index].id,
+        aws_security_group.common.id
+  ]
+    
+  tags = {
+
+    Name = "${var.project}-${var.environment}-${var.instances[count.index]}"
+
+  }
 }
 # it creates in default vpc
-resource "aws_security_group" "allow_terraform" {
-  name        = var.sg_name
+resource "aws_security_group" "roboshop" {
+  count = 4
+  name        = "${var.project}-${var.environment}-${var.instances[count.index]}"
   description = "Allow TLS inbound traffic and all outbound traffic"
 
   egress {
@@ -19,6 +28,26 @@ resource "aws_security_group" "allow_terraform" {
   }
 
 
-  tags = var.sg_tags
+  tags = {
+    Name = "${var.project}-${var.environment}-${var.instances[count.index]}"
+  }
+
+}
+resource "aws_security_group" "common" {
+  count = 4
+  name        = "${var.project}-${var.environment}-common"
+  description = "Allow TLS inbound traffic and all outbound traffic"
+
+  egress {
+    from_port   = var.port
+    to_port     = var.port
+    protocol    = "-1"
+    cidr_blocks = var.cidr_blocks
+  }
+
+
+  tags = {
+    Name = "${var.project}-${var.environment}-common"
+  }
 
 }
