@@ -3,10 +3,10 @@ resource "aws_instance" "roboshop" {
   ami                    = var.ami_id
   instance_type          = var.instance_type
 
-  vpc_security_group_ids = [
-        aws_security_group.roboshop[count.index].id,
-        aws_security_group.common.id
-  ]
+   vpc_security_group_ids = [
+  aws_security_group.roboshop[count.index].id,
+  aws_security_group.common[count.index].id
+]
     
   tags = {
 
@@ -35,7 +35,7 @@ resource "aws_security_group" "roboshop" {
 }
 resource "aws_security_group" "common" {
   count = 4
-  name        = "${var.project}-${var.environment}-common"
+  name        = "${var.project}-${var.environment}-common-1"
   description = "Allow TLS inbound traffic and all outbound traffic"
 
   egress {
